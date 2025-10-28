@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Daily Visit Form</title>
+    <style>
+      body { font-family: Arial; padding: 15px; }
+      input, textarea, button { width: 100%; padding: 8px; margin: 6px 0; }
+    </style>
+  </head>
+  <body>
+    <h2>Daily Visit Tracker</h2>
+    <form id="myForm" method="POST" target="_self" onsubmit="return sendForm()">
+      <input id="rep" placeholder="Sales Person Name" required>
+      <input id="doctor" placeholder="Doctor/Clinic name" required>
+      <input id="pob" placeholder="POB Value" required>
+      <textarea id="notes" placeholder="Notes (optional)"></textarea>
+      <input type="hidden" id="location">
+      <button type="submit">📍 Submit with Location</button>
+    </form>
+
+    <script>
+      const FORM_ACTION = "https://docs.google.com/forms/d/e/1FAIpQLSfA9O5rkypQSMxvnICKyyEtZPSRgNFVzNuYSdmAiYB0tBoiFw/formResponse?"; 
+      const ENTRY_REP = "entry.1825218438";      // Replace with your field IDs
+      const ENTRY_DOCTOR = "entry.568226399";   // Replace with your field IDs
+      const ENTRY_NOTES = "entry.772135958";    // Replace with your field IDs
+      const ENTRY_LOC = "entry.931722422";      // Replace with your field IDs
+      const ENTRY_POB = "entry.365452579";
+
+      function sendForm() {
+        if (!navigator.geolocation) {
+          alert("Location not supported.");
+          return false;
+        }
+        navigator.geolocation.getCurrentPosition(pos => {
+          const lat = pos.coords.latitude;
+          const lon = pos.coords.longitude;
+          document.getElementById("location").value = `${lat}, ${lon}`;
+
+          const params = new URLSearchParams();
+          params.append(ENTRY_REP, document.getElementById("rep").value);
+          params.append(ENTRY_DOCTOR, document.getElementById("doctor").value);
+          params.append(ENTRY_NOTES, document.getElementById("notes").value);
+          params.append(ENTRY_LOC, document.getElementById("location").value);
+          params.append(ENTRY_POB, document.getElementById("pob").value);
+
+          fetch(FORM_ACTION, {
+            method: "POST",
+            mode: "no-cors",
+            body: params
+          });
+
+          alert("Submitted successfully!");
+          document.getElementById("myForm").reset();
+        }, err => {
+          alert("Error getting location: " + err.message);
+        });
+        return false; // Prevent default submit
+      }
+    </script>
+  </body>
+</html>
